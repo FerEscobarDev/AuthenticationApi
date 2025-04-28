@@ -4,12 +4,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.13.35931.197 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationApi", "AuthenticationApi\AuthenticationApi.csproj", "{386256AA-A54D-4E6B-9FA6-A6AEB667A463}"
+	ProjectSection(ProjectDependencies) = postProject
+		{44D100E9-40C8-4991-B069-F077884E4BF9} = {44D100E9-40C8-4991-B069-F077884E4BF9}
+		{8145582D-E2B3-4670-B7DC-C864734F42E2} = {8145582D-E2B3-4670-B7DC-C864734F42E2}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationApi.Application", "AuthenticationApi.Application\AuthenticationApi.Application.csproj", "{44D100E9-40C8-4991-B069-F077884E4BF9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8145582D-E2B3-4670-B7DC-C864734F42E2} = {8145582D-E2B3-4670-B7DC-C864734F42E2}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationApi.Domain", "AuthenticationApi.Domain\AuthenticationApi.Domain.csproj", "{8145582D-E2B3-4670-B7DC-C864734F42E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationApi.Infrastructure", "AuthenticationApi.Infrastructure\AuthenticationApi.Infrastructure.csproj", "{4D20AA27-55A9-4CDF-A352-E3D4F76B0C74}"
+	ProjectSection(ProjectDependencies) = postProject
+		{44D100E9-40C8-4991-B069-F077884E4BF9} = {44D100E9-40C8-4991-B069-F077884E4BF9}
+		{8145582D-E2B3-4670-B7DC-C864734F42E2} = {8145582D-E2B3-4670-B7DC-C864734F42E2}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationApi.Shared", "AuthenticationApi.Shared\AuthenticationApi.Shared.csproj", "{A8962829-C316-4485-87D1-705C12B5A851}"
 EndProject
