@@ -7,19 +7,12 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-ENV POSTGRES_USER = admin
-ENV POSTGRES_PASSWORD = "Pruebas123$"
-ENV POSTGRES_DB = AuthApiDb
-
 
 # Esta fase se usa para compilar el proyecto de servicio
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Directory.Packages.props", "."]
 COPY ["AuthenticationApi/AuthenticationApi.csproj", "AuthenticationApi/"]
-COPY ["AuthenticationApi.Application/AuthenticationApi.Application.csproj", "AuthenticationApi.Application/"]
-COPY ["AuthenticationApi.Domain/AuthenticationApi.Domain.csproj", "AuthenticationApi.Domain/"]
 RUN dotnet restore "./AuthenticationApi/AuthenticationApi.csproj"
 COPY . .
 WORKDIR "/src/AuthenticationApi"

@@ -1,0 +1,52 @@
+services:
+  authenticationapi:
+    image: ${DOCKER_REGISTRY-}authenticationapi
+    build:
+      context: .
+      dockerfile: AuthenticationApi/Dockerfile
+    networks:
+      - authentication_api_network
+    depends_on:
+      - authentication_api_db
+    ports:
+      - "8000:8000"
+      - "8081:8081"
+    environment:
+      - DB_CONNECTION=Host=authentication_api_db;Port=5432;Database=AuthApiDb;Username=admin;Password=Pruebas123$
+
+  authentication_api_db:
+    image: postgres:latest
+    container_name: authentication_api_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Pruebas123$
+      POSTGRES_DB: AuthApiDb
+    networks:
+      - authentication_api_network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  mail_server_dev:
+    image: 'axllent/mailpit:latest'  
+    container_name: mailpit
+    restart: unless-stopped
+    volumes:
+      - mailpit_data:/data
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP
+    networks:
+      - authentication_api_network
+
+volumes:
+      db_data:
+        driver: local
+      mailpit_data:
+        driver: local
+
+networks:
+      authentication_api_network:
+        driver: bridge
