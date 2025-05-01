@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AuthenticationApi.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace AuthenticationApi.Infrastructure.Persistence.Context
@@ -8,6 +9,9 @@ namespace AuthenticationApi.Infrastructure.Persistence.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+
+        public DbSet<User> Users => Set<User>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

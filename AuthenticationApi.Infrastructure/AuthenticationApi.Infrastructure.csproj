@@ -15,10 +15,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AuthenticationApi.Application\AuthenticationApi.Application.csproj" />
     <ProjectReference Include="..\AuthenticationApi.Domain\AuthenticationApi.Domain.csproj" />
   </ItemGroup>
 
