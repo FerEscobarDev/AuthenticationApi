@@ -1,5 +1,8 @@
-﻿using AuthenticationApi.Application.Commands.RegisterUser;
+﻿using AuthenticationApi.Application.Commands.LoginUser;
+using AuthenticationApi.Application.Commands.RefreshToken;
+using AuthenticationApi.Application.Commands.RegisterUser;
 using AuthenticationApi.Application.DTOs;
+using AuthenticationApi.Application.DTOs.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationApi.Controllers.Auth
@@ -9,10 +12,17 @@ namespace AuthenticationApi.Controllers.Auth
     public class AuthController : Controller
     {
         private readonly RegisterUserCommandHandler _registerHandler;
+        private readonly LoginUserCommandHandler _loginHandler;
+        private readonly RefreshTokenCommandHandler _refreshTokenHandler;
 
-        public AuthController(RegisterUserCommandHandler registerHandler)
+        public AuthController(
+            RegisterUserCommandHandler registerHandler, 
+            LoginUserCommandHandler loginHandler,
+            RefreshTokenCommandHandler refreshTokenHandler)
         {
             _registerHandler = registerHandler;
+            _loginHandler = loginHandler;
+            _refreshTokenHandler = refreshTokenHandler;
         }
 
         [HttpPost("register")]
@@ -26,6 +36,34 @@ namespace AuthenticationApi.Controllers.Auth
             catch (ApplicationException ex)
             {
                 return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResultDto>> Login([FromBody] LoginUserCommand command)
+        {
+            try
+            {
+                var result = await _loginHandler.HandleAsync(command);
+                return Ok(result);
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("refresh")]
+        public async Task<ActionResult<AuthResultDto>> Refresh([FromBody] RefreshTokenCommand command)
+        {
+            try
+            {
+                var result = await _refreshTokenHandler.HandleAsync(command);
+                return Ok(result);
+            }
+            catch (ApplicationException ex)
+            {
+                return Unauthorized(new { error = ex.Message });
             }
         }
     }
