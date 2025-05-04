@@ -1,4 +1,6 @@
-﻿using AuthenticationApi.Application.Commands.LoginUser;
+﻿using AuthenticationApi.Application.Commands.ConfirmEmail;
+using AuthenticationApi.Application.Commands.LoginUser;
+using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.DTOs.Auth;
 
@@ -8,5 +10,7 @@ namespace AuthenticationApi.Application.Interfaces
     {
         Task<AuthResultDto> LoginAsync(LoginUserCommand command);
         Task<AuthResultDto> RefreshTokenAsync(RefreshTokenCommand command);
+        Task RevokeRefreshTokenAsync(LogoutCommand command);
+        Task ConfirmEmailAsync(ConfirmEmailCommand command);
     }
 }

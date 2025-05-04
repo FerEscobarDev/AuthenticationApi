@@ -1,4 +1,5 @@
 using AuthenticationApi.Application.Commands.LoginUser;
+using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.Commands.RegisterUser;
 using AuthenticationApi.Application.Interfaces;
@@ -43,6 +44,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<RefreshTokenCommandHandler>();
+builder.Services.AddScoped<LogoutCommandHandler>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddControllers();

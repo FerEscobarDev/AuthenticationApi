@@ -1,4 +1,6 @@
-﻿using AuthenticationApi.Application.Commands.LoginUser;
+﻿using AuthenticationApi.Application.Commands.ConfirmEmail;
+using AuthenticationApi.Application.Commands.LoginUser;
+using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.DTOs.Auth;
 using AuthenticationApi.Application.Interfaces;
@@ -102,6 +104,59 @@ namespace AuthenticationApi.Infrastructure.Services
                 RefreshToken = newRefreshToken,
                 ExpiresIn = int.Parse(_configuration["JwtSettings:AccessTokenExpirationMinutes"] ?? "30") * 60
             };
+        }
+
+        public async Task RevokeRefreshTokenAsync(LogoutCommand command)
+        {
+            var refreshTokenHash = Hash(command.RefreshToken);
+
+            var storedToken = await _context.RefreshTokens
+                .FirstOrDefaultAsync(rt => rt.TokenHash == refreshTokenHash && !rt.Revoked);
+
+            if (storedToken is null)
+                throw new ApplicationException("Refresh token is invalid or already revoked.");
+
+            storedToken.Revoked = true;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ConfirmEmailAsync(ConfirmEmailCommand command)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(command.Token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = _configuration["JwtSettings:Issuer"],
+                    ValidAudience = _configuration["JwtSettings:Audience"],
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                }, out _);
+
+                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId is null)
+                    throw new ApplicationException("Invalid token.");
+
+                var user = await _context.Users.FindAsync(Guid.Parse(userId));
+                if (user is null)
+                    throw new ApplicationException("User not found.");
+
+                if (user.EmailConfirmed)
+                    return;
+
+                user.EmailConfirmed = true;
+                await _context.SaveChangesAsync();
+            }
+            catch (SecurityTokenException)
+            {
+                throw new ApplicationException("Invalid or expired confirmation token.");
+            }
         }
 
         private string GenerateAccessToken(User user)

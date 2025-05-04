@@ -1,4 +1,5 @@
 ﻿using AuthenticationApi.Application.Commands.LoginUser;
+using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.Commands.RegisterUser;
 using AuthenticationApi.Application.DTOs;
@@ -14,15 +15,18 @@ namespace AuthenticationApi.Controllers.Auth
         private readonly RegisterUserCommandHandler _registerHandler;
         private readonly LoginUserCommandHandler _loginHandler;
         private readonly RefreshTokenCommandHandler _refreshTokenHandler;
+        private readonly LogoutCommandHandler _logoutHandler;
 
         public AuthController(
             RegisterUserCommandHandler registerHandler, 
             LoginUserCommandHandler loginHandler,
-            RefreshTokenCommandHandler refreshTokenHandler)
+            RefreshTokenCommandHandler refreshTokenHandler,
+            LogoutCommandHandler logoutHandler)
         {
             _registerHandler = registerHandler;
             _loginHandler = loginHandler;
             _refreshTokenHandler = refreshTokenHandler;
+            _logoutHandler = logoutHandler;
         }
 
         [HttpPost("register")]
@@ -64,6 +68,20 @@ namespace AuthenticationApi.Controllers.Auth
             catch (ApplicationException ex)
             {
                 return Unauthorized(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] LogoutCommand command)
+        {
+            try
+            {
+                await _logoutHandler.HandleAsync(command);
+                return Ok(new { message = "Refresh token successfully revoked." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
         }
     }
