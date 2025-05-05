@@ -18,19 +18,22 @@ namespace AuthenticationApi.Controllers.Auth
         private readonly RefreshTokenCommandHandler _refreshTokenHandler;
         private readonly LogoutCommandHandler _logoutHandler;
         private readonly ConfirmEmailCommandHandler _confirmEmailHandler;
+        private readonly ResendConfirmationEmailCommandHandler _resendConfirmationEmailHandler;
 
         public AuthController(
             RegisterUserCommandHandler registerHandler, 
             LoginUserCommandHandler loginHandler,
             RefreshTokenCommandHandler refreshTokenHandler,
             LogoutCommandHandler logoutHandler,
-            ConfirmEmailCommandHandler confirmEmailHandler)
+            ConfirmEmailCommandHandler confirmEmailHandler,
+            ResendConfirmationEmailCommandHandler resendConfirmationEmailHandler)
         {
             _registerHandler = registerHandler;
             _loginHandler = loginHandler;
             _refreshTokenHandler = refreshTokenHandler;
             _logoutHandler = logoutHandler;
             _confirmEmailHandler = confirmEmailHandler;
+            _resendConfirmationEmailHandler = resendConfirmationEmailHandler;
         }
 
         [HttpPost("register")]
@@ -108,5 +111,20 @@ namespace AuthenticationApi.Controllers.Auth
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        [HttpPost("resend-confirmation")]
+        public async Task<IActionResult> ResendConfirmation([FromBody] ResendConfirmationEmailCommand command)
+        {
+            try
+            {
+                await _resendConfirmationEmailHandler.HandleAsync(command);
+                return Ok(new { message = "Confirmation email resent successfully." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
     }
 }

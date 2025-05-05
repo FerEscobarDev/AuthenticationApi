@@ -1,10 +1,11 @@
-﻿using AuthenticationApi.Domain.Entities;
+﻿using AuthenticationApi.Application.Interfaces.Persistence;
+using AuthenticationApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace AuthenticationApi.Infrastructure.Persistence.Context
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext , IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

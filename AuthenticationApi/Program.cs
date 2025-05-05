@@ -5,6 +5,7 @@ using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.Commands.RegisterUser;
 using AuthenticationApi.Application.Interfaces;
 using AuthenticationApi.Domain.Entities;
+using AuthenticationApi.Infrastructure.DependencyInjection;
 using AuthenticationApi.Infrastructure.Persistence.Context;
 using AuthenticationApi.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
@@ -15,11 +16,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .UseSnakeCaseNamingConvention();
-});
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//{
+//    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+//           .UseSnakeCaseNamingConvention();
+//});
 
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
@@ -37,24 +38,21 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
-
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<RefreshTokenCommandHandler>();
 builder.Services.AddScoped<LogoutCommandHandler>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IAuthEmailSender, AuthEmailSender>();
 builder.Services.AddScoped<ConfirmEmailCommandHandler>();
-
+builder.Services.AddScoped<ResendConfirmationEmailCommandHandler>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
