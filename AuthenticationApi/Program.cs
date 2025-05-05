@@ -1,3 +1,4 @@
+using AuthenticationApi.Application.Commands.ConfirmEmail;
 using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
@@ -46,6 +47,8 @@ builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<RefreshTokenCommandHandler>();
 builder.Services.AddScoped<LogoutCommandHandler>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IAuthEmailSender, AuthEmailSender>();
+builder.Services.AddScoped<ConfirmEmailCommandHandler>();
 
 
 builder.Services.AddControllers();

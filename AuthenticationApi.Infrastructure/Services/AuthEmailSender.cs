@@ -1,5 +1,5 @@
-﻿using AuthenticationApi.Application.Interfaces;
-using AuthenticationApi.Domain.Entities;
+﻿using AuthenticationApi.Application.DTOs;
+using AuthenticationApi.Application.Interfaces;
 
 namespace AuthenticationApi.Infrastructure.Services
 {
@@ -12,15 +12,20 @@ namespace AuthenticationApi.Infrastructure.Services
             _emailService = emailService;
         }
 
-        public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
+        public async Task SendConfirmationLinkAsync(UserDto userDto, string email, string confirmationLink)
         {
             string subject = "Confirm your email";
-            string body = $"<H1>Confirm your email</H1><p>Please confirm your email by clicking this link: <a href='{confirmationLink}'>link</a></p>";
+            var body = $@"
+                <p>Hello {userDto.UserName},</p>
+                <p>Click the link below to confirm your email address:</p>
+                <p><a href='{confirmationLink}'>Confirm Email</a></p>
+                <p>This link will expire in 15 minutes.</p>
+            ";
 
             await _emailService.SendAsync(email, subject, body);
         }
 
-        public async Task SendPasswordResetCodeAsync(User user, string email, string resetCode)
+        public async Task SendPasswordResetCodeAsync(UserDto userDto, string email, string resetCode)
         {
             string subject = "Reset your password";
             string body = $"<H1>Reser your password</H1><p>Your password reset code is: {resetCode}</p>";
@@ -28,7 +33,7 @@ namespace AuthenticationApi.Infrastructure.Services
             await _emailService.SendAsync(email, subject, body);
         }
 
-        public async Task SendPasswordResetLinkAsync(User user, string email, string resetLink)
+        public async Task SendPasswordResetLinkAsync(UserDto userDto, string email, string resetLink)
         {
             string subject = "Reset your password";
             string body = $"<H1>Reser your password</H1><p>Please reset your password by clicking this link: <a href='{resetLink}'>link</a></p>";

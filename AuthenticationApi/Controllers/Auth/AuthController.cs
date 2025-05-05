@@ -1,4 +1,5 @@
-﻿using AuthenticationApi.Application.Commands.LoginUser;
+﻿using AuthenticationApi.Application.Commands.ConfirmEmail;
+using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.Commands.RegisterUser;
@@ -16,17 +17,20 @@ namespace AuthenticationApi.Controllers.Auth
         private readonly LoginUserCommandHandler _loginHandler;
         private readonly RefreshTokenCommandHandler _refreshTokenHandler;
         private readonly LogoutCommandHandler _logoutHandler;
+        private readonly ConfirmEmailCommandHandler _confirmEmailHandler;
 
         public AuthController(
             RegisterUserCommandHandler registerHandler, 
             LoginUserCommandHandler loginHandler,
             RefreshTokenCommandHandler refreshTokenHandler,
-            LogoutCommandHandler logoutHandler)
+            LogoutCommandHandler logoutHandler,
+            ConfirmEmailCommandHandler confirmEmailHandler)
         {
             _registerHandler = registerHandler;
             _loginHandler = loginHandler;
             _refreshTokenHandler = refreshTokenHandler;
             _logoutHandler = logoutHandler;
+            _confirmEmailHandler = confirmEmailHandler;
         }
 
         [HttpPost("register")]
@@ -36,6 +40,12 @@ namespace AuthenticationApi.Controllers.Auth
             {
                 var result = await _registerHandler.HandleAsync(command);
                 return CreatedAtAction(nameof(Register), new { id = result.Id }, result);
+                //return CreatedAtAction(
+                //    actionName: nameof(UsersController.GetById),
+                //    controllerName: "Users",
+                //    routeValues: new { id = result.Id },
+                //    value: result
+                //);
             }
             catch (ApplicationException ex)
             {
@@ -78,6 +88,20 @@ namespace AuthenticationApi.Controllers.Auth
             {
                 await _logoutHandler.HandleAsync(command);
                 return Ok(new { message = "Refresh token successfully revoked." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailCommand command)
+        {
+            try
+            {
+                await _confirmEmailHandler.HandleAsync(command);
+                return Ok(new { message = "Email confirmed successfully." });
             }
             catch (ApplicationException ex)
             {

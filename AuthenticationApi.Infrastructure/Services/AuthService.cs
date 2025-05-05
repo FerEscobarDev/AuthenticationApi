@@ -2,6 +2,7 @@
 using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
+using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.DTOs.Auth;
 using AuthenticationApi.Application.Interfaces;
 using AuthenticationApi.Domain.Entities;
@@ -37,6 +38,9 @@ namespace AuthenticationApi.Infrastructure.Services
 
             if (user is null || !_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, command.Password).Equals(PasswordVerificationResult.Success))
                 throw new ApplicationException("Invalid email or password.");
+
+            if (!user.EmailConfirmed)
+                throw new ApplicationException("You must confirm your email before logging in.");
 
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -140,7 +144,7 @@ namespace AuthenticationApi.Infrastructure.Services
                 }, out _);
 
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId is null)
+                if (string.IsNullOrWhiteSpace(userId))
                     throw new ApplicationException("Invalid token.");
 
                 var user = await _context.Users.FindAsync(Guid.Parse(userId));
@@ -148,7 +152,7 @@ namespace AuthenticationApi.Infrastructure.Services
                     throw new ApplicationException("User not found.");
 
                 if (user.EmailConfirmed)
-                    return;
+                    return; 
 
                 user.EmailConfirmed = true;
                 await _context.SaveChangesAsync();
@@ -157,6 +161,27 @@ namespace AuthenticationApi.Infrastructure.Services
             {
                 throw new ApplicationException("Invalid or expired confirmation token.");
             }
+        }
+
+        public string GenerateEmailConfirmationToken(UserDto user)
+        {
+            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
+            var expiration = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:ConfirmEmailTokenExpirationMinutes"] ?? "15"));
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JwtSettings:Issuer"],
+                audience: _configuration["JwtSettings:Audience"],
+                claims: claims,
+                expires: expiration,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private string GenerateAccessToken(User user)

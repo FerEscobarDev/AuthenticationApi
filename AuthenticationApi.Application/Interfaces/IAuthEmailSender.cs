@@ -1,11 +1,11 @@
-﻿using AuthenticationApi.Domain.Entities;
+﻿using AuthenticationApi.Application.DTOs;
 
 namespace AuthenticationApi.Application.Interfaces
 {
     public interface IAuthEmailSender
     {
-        public Task SendConfirmationLinkAsync(User user, string email, string confirmationLink);
-        public Task SendPasswordResetCodeAsync(User user, string email, string resetCode);
-        public Task SendPasswordResetLinkAsync(User user, string email, string resetLink);
+        public Task SendConfirmationLinkAsync(UserDto userDto, string email, string confirmationLink);
+        public Task SendPasswordResetCodeAsync(UserDto userDto, string email, string resetCode);
+        public Task SendPasswordResetLinkAsync(UserDto userDto, string email, string resetLink);
     }
 }
