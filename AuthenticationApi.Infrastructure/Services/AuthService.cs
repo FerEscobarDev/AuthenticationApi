@@ -35,7 +35,7 @@ namespace AuthenticationApi.Infrastructure.Services
         public async Task<AuthResultDto> LoginAsync(LoginUserCommand command)
         {
             var user = await _context.Users.Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == command.Email.ToLower());
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == command.EmailOrUsername.ToLower());
 
             if (user is null || !_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, command.Password).Equals(PasswordVerificationResult.Success))
                 throw new ApplicationException("Invalid email or password.");

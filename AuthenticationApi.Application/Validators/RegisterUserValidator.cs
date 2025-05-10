@@ -1,16 +1,17 @@
 using AuthenticationApi.Application.Commands.RegisterUser;
-using AuthenticationApi.Application.Interfaces.Repository;
+using AuthenticationApi.Application.Interfaces.Queries.Users;
+using AuthenticationApi.Application.Queries.Users;
 using FluentValidation;
 
 namespace AuthenticationApi.Application.Validators;
 
 public class RegisterUserValidator : AbstractValidator<RegisterUserCommand>
 {
-    private readonly IUserRepository _userRepository;
+    private readonly ICheckEmailExistsQueryHandler _emailExistsHandler;
 
-    public RegisterUserValidator(IUserRepository userRepository)
+    public RegisterUserValidator(ICheckEmailExistsQueryHandler  emailExistsHandler)
     {
-        _userRepository = userRepository;
+        _emailExistsHandler = emailExistsHandler;
 
         RuleFor(registerUserCommand => registerUserCommand.Email)
             .NotEmpty().WithMessage("Email is required.")
@@ -37,6 +38,6 @@ public class RegisterUserValidator : AbstractValidator<RegisterUserCommand>
 
     private async Task<bool> EmailNotExists(string email, CancellationToken cancellationToken)
     {
-        return !await _userRepository.EmailExistsAsync(email);
+        return !await _emailExistsHandler.HandleAsync(new CheckEmailExistsQuery { Email = email }, cancellationToken);
     }
 }

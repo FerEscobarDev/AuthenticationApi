@@ -1,4 +1,3 @@
-using System.Reflection;
 using AuthenticationApi.Application.Commands.ConfirmEmail;
 using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
@@ -13,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AuthenticationApi.Application.Commands.ForgotPassword;
 using AuthenticationApi.Application.Commands.ResetPassword;
+using AuthenticationApi.Application.Interfaces.Queries.Users;
+using AuthenticationApi.Application.Queries.Users;
 using AuthenticationApi.Application.Validators;
 using FluentValidation;
 
@@ -55,6 +56,9 @@ builder.Services.AddScoped<ConfirmEmailCommandHandler>();
 builder.Services.AddScoped<ResendConfirmationEmailCommandHandler>();
 builder.Services.AddScoped<ForgotPasswordCommandHandler>();
 builder.Services.AddScoped<ResetPasswordCommandHandler>();
+builder.Services.AddScoped<ICheckEmailExistsQueryHandler, CheckEmailExistsQueryHandler>();
+builder.Services.AddScoped<ICheckUserExistsQueryHandler, CheckUserExistsQueryHandler>();
+builder.Services.AddScoped<IValidator<LoginUserCommand>, LoginUserValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
