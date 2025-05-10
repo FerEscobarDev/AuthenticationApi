@@ -3,15 +3,15 @@ using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.Commands.RegisterUser;
-using AuthenticationApi.Application.Interfaces;
 using AuthenticationApi.Domain.Entities;
 using AuthenticationApi.Infrastructure.DependencyInjection;
 using AuthenticationApi.Infrastructure.Persistence.Context;
-using AuthenticationApi.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using AuthenticationApi.Application.Commands.ForgotPassword;
+using AuthenticationApi.Application.Commands.ResetPassword;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +46,8 @@ builder.Services.AddScoped<RefreshTokenCommandHandler>();
 builder.Services.AddScoped<LogoutCommandHandler>();
 builder.Services.AddScoped<ConfirmEmailCommandHandler>();
 builder.Services.AddScoped<ResendConfirmationEmailCommandHandler>();
+builder.Services.AddScoped<ForgotPasswordCommandHandler>();
+builder.Services.AddScoped<ResetPasswordCommandHandler>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -15,6 +15,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using AuthenticationApi.Application.Commands.ResetPassword;
 
 namespace AuthenticationApi.Infrastructure.Services
 {
@@ -182,6 +183,62 @@ namespace AuthenticationApi.Infrastructure.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        
+        public string GeneratePasswordResetToken(UserDto userDto)
+        {
+            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
+            var expiration = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:ResetPasswordTokenExpirationMinutes"] ?? "10"));
+        
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, userDto.Id.ToString())
+            };
+        
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JwtSettings:Issuer"],
+                audience: _configuration["JwtSettings:Audience"],
+                claims: claims,
+                expires: expiration,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            );
+        
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        
+        public async Task ResetPasswordAsync(ResetPasswordCommand command)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(command.Token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = _configuration["JwtSettings:Issuer"],
+                    ValidAudience = _configuration["JwtSettings:Audience"],
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                }, out _);
+
+                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId is null)
+                    throw new ApplicationException("Invalid token.");
+
+                var user = await _context.Users.FindAsync(Guid.Parse(userId));
+                if (user is null)
+                    throw new ApplicationException("User not found.");
+
+                user.PasswordHash = _passwordHasher.HashPassword(user, command.NewPassword);
+                await _context.SaveChangesAsync();
+            }
+            catch (SecurityTokenException)
+            {
+                throw new ApplicationException("Invalid or expired token.");
+            }
         }
 
         private string GenerateAccessToken(User user)

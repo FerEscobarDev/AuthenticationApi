@@ -35,8 +35,13 @@ namespace AuthenticationApi.Infrastructure.Services
 
         public async Task SendPasswordResetLinkAsync(UserDto userDto, string email, string resetLink)
         {
-            string subject = "Reset your password";
-            string body = $"<H1>Reser your password</H1><p>Please reset your password by clicking this link: <a href='{resetLink}'>link</a></p>";
+            var subject = "Reset your password";
+            var body = $@"
+                <p>Hello {userDto.UserName},</p>
+                <p>Click the link below to reset your password:</p>
+                <p><a href='{resetLink}'>Reset Password</a></p>
+                <p>This link will expire in 10 minutes.</p>
+            ";
 
             await _emailService.SendAsync(email, subject, body);
         }

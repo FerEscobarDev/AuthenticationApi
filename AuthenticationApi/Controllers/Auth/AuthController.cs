@@ -1,8 +1,10 @@
 ﻿using AuthenticationApi.Application.Commands.ConfirmEmail;
+using AuthenticationApi.Application.Commands.ForgotPassword;
 using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.Commands.RegisterUser;
+using AuthenticationApi.Application.Commands.ResetPassword;
 using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.DTOs.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +21,8 @@ namespace AuthenticationApi.Controllers.Auth
         private readonly LogoutCommandHandler _logoutHandler;
         private readonly ConfirmEmailCommandHandler _confirmEmailHandler;
         private readonly ResendConfirmationEmailCommandHandler _resendConfirmationEmailHandler;
+        private readonly ForgotPasswordCommandHandler _forgotPasswordHandler;
+        private readonly ResetPasswordCommandHandler _resetPasswordHandler;
 
         public AuthController(
             RegisterUserCommandHandler registerHandler, 
@@ -26,7 +30,9 @@ namespace AuthenticationApi.Controllers.Auth
             RefreshTokenCommandHandler refreshTokenHandler,
             LogoutCommandHandler logoutHandler,
             ConfirmEmailCommandHandler confirmEmailHandler,
-            ResendConfirmationEmailCommandHandler resendConfirmationEmailHandler)
+            ResendConfirmationEmailCommandHandler resendConfirmationEmailHandler,
+            ForgotPasswordCommandHandler forgotPasswordHandler,
+            ResetPasswordCommandHandler resetPasswordHandler)
         {
             _registerHandler = registerHandler;
             _loginHandler = loginHandler;
@@ -34,6 +40,8 @@ namespace AuthenticationApi.Controllers.Auth
             _logoutHandler = logoutHandler;
             _confirmEmailHandler = confirmEmailHandler;
             _resendConfirmationEmailHandler = resendConfirmationEmailHandler;
+            _forgotPasswordHandler = forgotPasswordHandler;
+            _resetPasswordHandler = resetPasswordHandler;
         }
 
         [HttpPost("register")]
@@ -125,6 +133,33 @@ namespace AuthenticationApi.Controllers.Auth
                 return BadRequest(new { error = ex.Message });
             }
         }
-
+        
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
+        {
+            try
+            {
+                await _forgotPasswordHandler.HandleAsync(command);
+                return Ok(new { message = "Password reset link has been sent." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+        {
+            try
+            {
+                await _resetPasswordHandler.HandleAsync(command);
+                return Ok(new { message = "Password has been reset successfully." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }
