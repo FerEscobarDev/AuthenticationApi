@@ -1,5 +1,5 @@
 ﻿using AuthenticationApi.Application.DTOs.Auth;
-using AuthenticationApi.Application.Interfaces;
+using AuthenticationApi.Application.Interfaces.Services;
 
 namespace AuthenticationApi.Application.Commands.RefreshToken
 {

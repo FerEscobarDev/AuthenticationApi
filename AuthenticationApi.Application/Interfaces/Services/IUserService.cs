@@ -1,7 +1,7 @@
 ﻿using AuthenticationApi.Application.Commands.RegisterUser;
 using AuthenticationApi.Application.DTOs;
 
-namespace AuthenticationApi.Application.Interfaces
+namespace AuthenticationApi.Application.Interfaces.Services
 {
     public interface IUserService
     {

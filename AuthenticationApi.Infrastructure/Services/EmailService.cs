@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MailKit.Net.Smtp;
 using MimeKit;
-using AuthenticationApi.Application.Interfaces;
+using AuthenticationApi.Application.Interfaces.Services;
 
 namespace AuthenticationApi.Infrastructure.Services
 {
@@ -30,7 +30,7 @@ namespace AuthenticationApi.Infrastructure.Services
             using var smtp = new SmtpClient();
 
             var host = _config["EmailSettings:Host"];
-            var port = int.Parse(_config["EmailSettings:Port"]);
+            var port = int.Parse(_config["EmailSettings:Port"] ?? "1025");
             var useSsl = bool.TryParse(_config["EmailSettings:UseSsl"], out var ssl) && ssl;
 
             var socketOption = useSsl

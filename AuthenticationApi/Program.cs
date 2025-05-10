@@ -1,3 +1,4 @@
+using System.Reflection;
 using AuthenticationApi.Application.Commands.ConfirmEmail;
 using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
@@ -12,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AuthenticationApi.Application.Commands.ForgotPassword;
 using AuthenticationApi.Application.Commands.ResetPassword;
+using AuthenticationApi.Application.Validators;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +40,10 @@ builder.Services.AddAuthentication("Bearer")
                 Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
         };
     });
+
+builder.Services.AddScoped<IValidator<RegisterUserCommand>, RegisterUserValidator>();
+//builder.Services.AddScoped<IValidator<ResetPasswordCommand>, ResetPasswordValidator>();
+//builder.Services.AddScoped<IValidator<LoginUserCommand>, LoginUserValidator>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();

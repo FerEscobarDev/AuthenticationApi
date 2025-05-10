@@ -1,5 +1,5 @@
 ﻿using AuthenticationApi.Application.DTOs;
-using AuthenticationApi.Application.Interfaces;
+using AuthenticationApi.Application.Interfaces.Services;
 
 namespace AuthenticationApi.Infrastructure.Services
 {

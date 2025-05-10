@@ -6,7 +6,7 @@ using AuthenticationApi.Application.Commands.ResetPassword;
 using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.DTOs.Auth;
 
-namespace AuthenticationApi.Application.Interfaces
+namespace AuthenticationApi.Application.Interfaces.Services
 {
     public interface IAuthService
     {

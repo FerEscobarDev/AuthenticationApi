@@ -1,4 +1,5 @@
 ﻿using AuthenticationApi.Application.Interfaces;
+using AuthenticationApi.Application.Interfaces.Services;
 
 namespace AuthenticationApi.Application.Commands.Logout
 {

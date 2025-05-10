@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using AuthenticationApi.Application.Commands.RegisterUser;
 using Microsoft.EntityFrameworkCore;
 using AuthenticationApi.Application.Interfaces;
+using AuthenticationApi.Application.Interfaces.Services;
 
 namespace AuthenticationApi.Infrastructure.Services
 {
@@ -21,12 +22,6 @@ namespace AuthenticationApi.Infrastructure.Services
 
         public async Task<UserDto> RegisterUserAsync(RegisterUserCommand command)
         {
-            var existing = await _context.Users
-                .FirstOrDefaultAsync(user => user.Email.ToLower() == command.Email.ToLower());
-
-            if (existing is not null)
-                throw new ApplicationException("The user already has that email.");
-
             var user = new User
             {
                 UserName = command.UserName,

@@ -4,7 +4,7 @@ using AuthenticationApi.Application.Commands.Logout;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.DTOs.Auth;
-using AuthenticationApi.Application.Interfaces;
+using AuthenticationApi.Application.Interfaces.Services;
 using AuthenticationApi.Domain.Entities;
 using AuthenticationApi.Infrastructure.Persistence.Context;
 using Microsoft.AspNetCore.Identity;

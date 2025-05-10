@@ -1,6 +1,8 @@
-﻿using AuthenticationApi.Application.Interfaces;
+﻿using AuthenticationApi.Application.Interfaces.Services;
 using AuthenticationApi.Application.Interfaces.Persistence;
+using AuthenticationApi.Application.Interfaces.Repository;
 using AuthenticationApi.Infrastructure.Persistence.Context;
+using AuthenticationApi.Infrastructure.Repositories;
 using AuthenticationApi.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +27,7 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IAuthEmailSender, AuthEmailSender>(); 
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }

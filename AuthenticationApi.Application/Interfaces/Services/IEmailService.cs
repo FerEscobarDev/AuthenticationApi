@@ -1,4 +1,4 @@
-﻿namespace AuthenticationApi.Application.Interfaces
+﻿namespace AuthenticationApi.Application.Interfaces.Services
 {
     public interface IEmailService
     {

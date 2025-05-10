@@ -1,6 +1,7 @@
 ﻿using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.Interfaces;
 using AuthenticationApi.Application.Interfaces.Persistence;
+using AuthenticationApi.Application.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
