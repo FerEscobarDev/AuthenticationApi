@@ -7,6 +7,7 @@ using AuthenticationApi.Application.Commands.RegisterUser;
 using AuthenticationApi.Application.Commands.ResetPassword;
 using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.DTOs.Auth;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationApi.Controllers.Auth
@@ -57,6 +58,13 @@ namespace AuthenticationApi.Controllers.Auth
                 //    routeValues: new { id = result.Id },
                 //    value: result
                 //);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {
