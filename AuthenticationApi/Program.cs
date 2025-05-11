@@ -58,7 +58,10 @@ builder.Services.AddScoped<ForgotPasswordCommandHandler>();
 builder.Services.AddScoped<ResetPasswordCommandHandler>();
 builder.Services.AddScoped<ICheckEmailExistsQueryHandler, CheckEmailExistsQueryHandler>();
 builder.Services.AddScoped<ICheckUserExistsQueryHandler, CheckUserExistsQueryHandler>();
+builder.Services.AddScoped<ICheckEmailConfirmedQueryHandler, CheckEmailConfirmedQueryHandler>();
 builder.Services.AddScoped<IValidator<LoginUserCommand>, LoginUserValidator>();
+builder.Services.AddScoped<IValidator<ForgotPasswordCommand>, ForgotPasswordValidator>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
