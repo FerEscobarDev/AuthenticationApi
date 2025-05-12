@@ -17,20 +17,20 @@ public class ForgotPasswordCommandHandler
     private readonly IAuthService _authService;
     private readonly IAuthEmailSender _authEmailSender;
     private readonly IValidator<ForgotPasswordCommand> _validator;
-    private readonly IGetUserByEmailQueryHandler _getUserByEmailQueryHandler;
+    private readonly IGetUserByEmailOrUsernameQueryHandler _getUserByEmailOrUsernameQueryHandler;
 
     public ForgotPasswordCommandHandler(
         IConfiguration configuration,
         IAuthService authService,
         IAuthEmailSender authEmailSender,
         IValidator<ForgotPasswordCommand> validator,
-        IGetUserByEmailQueryHandler getUserByEmailQueryHandler)
+        IGetUserByEmailOrUsernameQueryHandler getUserByEmailOrUsernameQueryHandler)
     {
         _configuration = configuration;
         _authService = authService;
         _authEmailSender = authEmailSender;
         _validator = validator;
-        _getUserByEmailQueryHandler = getUserByEmailQueryHandler;
+        _getUserByEmailOrUsernameQueryHandler = getUserByEmailOrUsernameQueryHandler;
     }
 
     public async Task HandleAsync(ForgotPasswordCommand command, CancellationToken cancellationToken = default)
@@ -39,7 +39,7 @@ public class ForgotPasswordCommandHandler
         if (!validated.IsValid)
             throw new ValidationException(validated.Errors);
 
-        var user = await _getUserByEmailQueryHandler.HandleAsync(new GetUserByEmailQuery { Email = command.Email }, cancellationToken);
+        var user = await _getUserByEmailOrUsernameQueryHandler.HandleAsync(new GetUserByEmailOrUserNameQuery { EmailOrUserName = command.Email }, cancellationToken);
 
         if (user is null)
             throw new ApplicationException("Error getting user.");

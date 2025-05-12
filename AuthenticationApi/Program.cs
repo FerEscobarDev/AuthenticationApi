@@ -56,6 +56,7 @@ builder.Services.AddScoped<ICheckEmailExistsQueryHandler, CheckEmailExistsQueryH
 builder.Services.AddScoped<ICheckUserExistsQueryHandler, CheckUserExistsQueryHandler>();
 builder.Services.AddScoped<ICheckEmailConfirmedQueryHandler, CheckEmailConfirmedQueryHandler>();
 builder.Services.AddScoped<ICheckUsernameExistsQueryHandler, CheckUsernameExistsQueryHandler>();
+builder.Services.AddScoped<IGetUserByEmailOrUsernameQueryHandler, GetUserByEmailOrUsernameQueryHandler>();
 builder.Services.AddScoped<IValidator<LoginUserCommand>, LoginUserValidator>();
 builder.Services.AddScoped<IValidator<ForgotPasswordCommand>, ForgotPasswordValidator>();
 builder.Services.AddScoped<IValidator<ResetPasswordCommand>, ResetPasswordValidator>();

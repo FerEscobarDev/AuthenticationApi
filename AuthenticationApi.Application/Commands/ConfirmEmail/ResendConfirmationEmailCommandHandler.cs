@@ -16,20 +16,20 @@ namespace AuthenticationApi.Application.Commands.ConfirmEmail
         private readonly IAuthEmailSender _authEmailSender;
         private readonly IAuthService _authService;
         private readonly IConfiguration _configuration;
-        private readonly IGetUserByEmailQueryHandler _getUserByEmailQueryHandler;
+        private readonly IGetUserByEmailOrUsernameQueryHandler _getUserByEmailOrUsernameQueryHandler;
         private readonly IValidator<ResendConfirmationEmailCommand> _validator;
 
         public ResendConfirmationEmailCommandHandler(
             IAuthEmailSender authEmailSender,
             IAuthService authService,
             IConfiguration configuration,
-            IGetUserByEmailQueryHandler getUserByEmailQueryHandler,
+            IGetUserByEmailOrUsernameQueryHandler getUserByEmailOrUsernameQueryHandler,
             IValidator<ResendConfirmationEmailCommand> validator)
         {
             _authEmailSender = authEmailSender;
             _authService = authService;
             _configuration = configuration;
-            _getUserByEmailQueryHandler = getUserByEmailQueryHandler;           
+            _getUserByEmailOrUsernameQueryHandler = getUserByEmailOrUsernameQueryHandler;           
             _validator = validator;
         }
 
@@ -39,7 +39,7 @@ namespace AuthenticationApi.Application.Commands.ConfirmEmail
             if (!validated.IsValid)
                 throw new ValidationException(validated.Errors);
 
-            var user = await _getUserByEmailQueryHandler.HandleAsync(new GetUserByEmailQuery { Email = command.Email }, cancellationToken);
+            var user = await _getUserByEmailOrUsernameQueryHandler.HandleAsync(new GetUserByEmailOrUserNameQuery { EmailOrUserName = command.Email }, cancellationToken);
             
             if (user is null)
                 throw new ApplicationException("Error getting user.");

@@ -20,10 +20,10 @@ public class UserRepository : IUserRepository
             .AnyAsync(user => user.Email.ToLower() == email.ToLower(), cancellationToken);
     }
 
-    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByEmailOrUsernameAsync(string emailOrUsername, CancellationToken cancellationToken = default)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(user => user.Email.ToLower() == email.ToLower(), cancellationToken);
+            .FirstOrDefaultAsync(user => user.Email.ToLower() == emailOrUsername.ToLower() || user.UserName == emailOrUsername, cancellationToken);
     }
 
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
