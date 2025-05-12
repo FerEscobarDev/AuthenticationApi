@@ -2,7 +2,7 @@
 {
     public class LoginUserCommand
     {
-        public string EmailOrUsername { get; set; }
-        public string Password { get; set; }
+        public string EmailOrUsername { get; set; } = default!;
+        public string Password { get; set; } = default!;
     }
 }
