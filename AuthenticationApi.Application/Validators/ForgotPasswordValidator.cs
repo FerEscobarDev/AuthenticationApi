@@ -21,7 +21,6 @@ public class ForgotPasswordValidator: AbstractValidator<ForgotPasswordCommand>
 
     private async Task<bool> EmailIsConfirmed(string email, CancellationToken cancellationToken)
     {
-        return await _checkEmailConfirmedHandler
-            .HandleAsync(new CheckEmailConfirmedQuery { Email = email }, cancellationToken);
+        return await _checkEmailConfirmedHandler.HandleAsync(new CheckEmailConfirmedQuery { EmailOrUsername = email }, cancellationToken);
     }
 }

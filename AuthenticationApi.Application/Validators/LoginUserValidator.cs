@@ -8,21 +8,30 @@ namespace AuthenticationApi.Application.Validators;
 public class LoginUserValidator : AbstractValidator<LoginUserCommand>
 {
     private readonly ICheckUserExistsQueryHandler _userExistsQueryHandler;
+    private readonly ICheckEmailConfirmedQueryHandler _checkEmailConfirmedQueryHandler;
     
-    public LoginUserValidator(ICheckUserExistsQueryHandler userExistsQueryHandler)
+    public LoginUserValidator(ICheckUserExistsQueryHandler userExistsQueryHandler, ICheckEmailConfirmedQueryHandler checkEmailConfirmedQueryHandler)
     {
         _userExistsQueryHandler = userExistsQueryHandler;
-        
-        RuleFor(x => x.EmailOrUsername)
-            .NotEmpty().WithMessage("Email or username is required.")
-            .MustAsync(UserExists).WithMessage("Invalid email or password.");
+        _checkEmailConfirmedQueryHandler = checkEmailConfirmedQueryHandler;
 
-        RuleFor(x => x.Password)
+        RuleFor(loginUserCommand => loginUserCommand.EmailOrUsername)
+            .NotEmpty().WithMessage("Email or username is required.")
+            .MustAsync(UserExists).WithMessage("Invalid credentials.")
+            .DependentRules(() => RuleFor(loginUserCommand => loginUserCommand.EmailOrUsername)
+                .MustAsync(EmailIsConfirmed).WithMessage("Email is not confirmed or does not exist."));       
+
+        RuleFor(loginUserCommand => loginUserCommand.Password)
             .NotEmpty().WithMessage("Password is required.");
     }
 
-    private async Task<bool> UserExists(string input, CancellationToken ct)
+    private async Task<bool> UserExists(string emailOrUserName, CancellationToken cancellationToken)
     {
-        return await _userExistsQueryHandler.HandleAsync(new CheckUserExistsQuery { EmailOrUsername = input }, ct);
+        return await _userExistsQueryHandler.HandleAsync(new CheckUserExistsQuery { EmailOrUsername = emailOrUserName }, cancellationToken);
+    }
+    
+    private async Task<bool> EmailIsConfirmed(string emailOrUsername, CancellationToken cancellationToken)
+    {
+        return await _checkEmailConfirmedQueryHandler.HandleAsync(new CheckEmailConfirmedQuery { EmailOrUsername = emailOrUsername }, cancellationToken);
     }
 }

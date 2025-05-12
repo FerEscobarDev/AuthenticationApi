@@ -42,10 +42,6 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
-builder.Services.AddScoped<IValidator<RegisterUserCommand>, RegisterUserValidator>();
-//builder.Services.AddScoped<IValidator<ResetPasswordCommand>, ResetPasswordValidator>();
-//builder.Services.AddScoped<IValidator<LoginUserCommand>, LoginUserValidator>();
-
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -59,9 +55,15 @@ builder.Services.AddScoped<ResetPasswordCommandHandler>();
 builder.Services.AddScoped<ICheckEmailExistsQueryHandler, CheckEmailExistsQueryHandler>();
 builder.Services.AddScoped<ICheckUserExistsQueryHandler, CheckUserExistsQueryHandler>();
 builder.Services.AddScoped<ICheckEmailConfirmedQueryHandler, CheckEmailConfirmedQueryHandler>();
+builder.Services.AddScoped<ICheckUsernameExistsQueryHandler, CheckUsernameExistsQueryHandler>();
 builder.Services.AddScoped<IValidator<LoginUserCommand>, LoginUserValidator>();
 builder.Services.AddScoped<IValidator<ForgotPasswordCommand>, ForgotPasswordValidator>();
-
+builder.Services.AddScoped<IValidator<ResetPasswordCommand>, ResetPasswordValidator>();
+builder.Services.AddScoped<IValidator<RegisterUserCommand>, RegisterUserValidator>();
+builder.Services.AddScoped<IValidator<RefreshTokenCommand>, RefreshTokenValidator>();
+builder.Services.AddScoped<IValidator<LogoutCommand>, LogoutCommandValidator>();
+builder.Services.AddScoped<IValidator<ConfirmEmailCommand>, ConfirmEmailCommandValidator>();
+builder.Services.AddScoped<IValidator<ResendConfirmationEmailCommand>, ResendConfirmationEmailValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

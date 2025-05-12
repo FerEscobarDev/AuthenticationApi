@@ -28,9 +28,9 @@ namespace AuthenticationApi.Application.Commands.RegisterUser
             _validator = validator;
         }
 
-        public async Task<UserDto> HandleAsync(RegisterUserCommand command)
+        public async Task<UserDto> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken = default)
         {
-            var validated = await _validator.ValidateAsync(command);
+            var validated = await _validator.ValidateAsync(command, cancellationToken);
             
             if (!validated.IsValid)
                 throw new ValidationException(validated.Errors);

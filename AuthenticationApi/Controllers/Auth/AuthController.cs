@@ -46,18 +46,12 @@ namespace AuthenticationApi.Controllers.Auth
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register([FromBody] RegisterUserCommand command)
+        public async Task<ActionResult<UserDto>> Register([FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _registerHandler.HandleAsync(command);
+                var result = await _registerHandler.HandleAsync(command, cancellationToken);
                 return CreatedAtAction(nameof(Register), new { id = result.Id }, result);
-                //return CreatedAtAction(
-                //    actionName: nameof(UsersController.GetById),
-                //    controllerName: "Users",
-                //    routeValues: new { id = result.Id },
-                //    value: result
-                //);
             }
             catch (ValidationException ex)
             {
@@ -73,12 +67,19 @@ namespace AuthenticationApi.Controllers.Auth
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResultDto>> Login([FromBody] LoginUserCommand command)
+        public async Task<ActionResult<AuthResultDto>> Login([FromBody] LoginUserCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _loginHandler.HandleAsync(command);
+                var result = await _loginHandler.HandleAsync(command, cancellationToken);
                 return Ok(result);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {
@@ -87,12 +88,19 @@ namespace AuthenticationApi.Controllers.Auth
         }
 
         [HttpPost("refresh")]
-        public async Task<ActionResult<AuthResultDto>> Refresh([FromBody] RefreshTokenCommand command)
+        public async Task<ActionResult<AuthResultDto>> Refresh([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _refreshTokenHandler.HandleAsync(command);
+                var result = await _refreshTokenHandler.HandleAsync(command, cancellationToken);
                 return Ok(result);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {
@@ -101,12 +109,19 @@ namespace AuthenticationApi.Controllers.Auth
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] LogoutCommand command)
+        public async Task<IActionResult> Logout([FromBody] LogoutCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                await _logoutHandler.HandleAsync(command);
+                await _logoutHandler.HandleAsync(command, cancellationToken);
                 return Ok(new { message = "Refresh token successfully revoked." });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {
@@ -115,12 +130,19 @@ namespace AuthenticationApi.Controllers.Auth
         }
 
         [HttpPost("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailCommand command)
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                await _confirmEmailHandler.HandleAsync(command);
+                await _confirmEmailHandler.HandleAsync(command, cancellationToken);
                 return Ok(new { message = "Email confirmed successfully." });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {
@@ -129,12 +151,19 @@ namespace AuthenticationApi.Controllers.Auth
         }
 
         [HttpPost("resend-confirmation")]
-        public async Task<IActionResult> ResendConfirmation([FromBody] ResendConfirmationEmailCommand command)
+        public async Task<IActionResult> ResendConfirmation([FromBody] ResendConfirmationEmailCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                await _resendConfirmationEmailHandler.HandleAsync(command);
+                await _resendConfirmationEmailHandler.HandleAsync(command, cancellationToken);
                 return Ok(new { message = "Confirmation email resent successfully." });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {
@@ -143,12 +172,19 @@ namespace AuthenticationApi.Controllers.Auth
         }
         
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                await _forgotPasswordHandler.HandleAsync(command);
+                await _forgotPasswordHandler.HandleAsync(command, cancellationToken);
                 return Ok(new { message = "Password reset link has been sent." });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {
@@ -157,12 +193,19 @@ namespace AuthenticationApi.Controllers.Auth
         }
         
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                await _resetPasswordHandler.HandleAsync(command);
+                await _resetPasswordHandler.HandleAsync(command, cancellationToken);
                 return Ok(new { message = "Password has been reset successfully." });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new
+                {
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                });
             }
             catch (ApplicationException ex)
             {

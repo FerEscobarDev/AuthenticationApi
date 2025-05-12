@@ -14,6 +14,6 @@ public class CheckEmailConfirmedQueryHandler : ICheckEmailConfirmedQueryHandler
 
     public async Task<bool> HandleAsync(CheckEmailConfirmedQuery query, CancellationToken cancellationToken = default)
     {
-        return await _userRepository.IsEmailConfirmedAsync(query.Email, cancellationToken);
+        return await _userRepository.IsEmailConfirmedAsync(query.EmailOrUsername, cancellationToken);
     }
 }

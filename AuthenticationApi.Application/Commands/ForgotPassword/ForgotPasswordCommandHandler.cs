@@ -1,8 +1,11 @@
 ﻿using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.Interfaces;
 using AuthenticationApi.Application.Interfaces.Persistence;
+using AuthenticationApi.Application.Interfaces.Queries.Users;
 using AuthenticationApi.Application.Interfaces.Repository;
 using AuthenticationApi.Application.Interfaces.Services;
+using AuthenticationApi.Application.Queries.Users;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -10,32 +13,36 @@ namespace AuthenticationApi.Application.Commands.ForgotPassword;
 
 public class ForgotPasswordCommandHandler
 {
-    private readonly IApplicationDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly IAuthService _authService;
     private readonly IAuthEmailSender _authEmailSender;
-    private readonly IUserRepository _userRepository;
+    private readonly IValidator<ForgotPasswordCommand> _validator;
+    private readonly IGetUserByEmailQueryHandler _getUserByEmailQueryHandler;
 
     public ForgotPasswordCommandHandler(
-        IApplicationDbContext context,
         IConfiguration configuration,
         IAuthService authService,
         IAuthEmailSender authEmailSender,
-        IUserRepository userRepository)
+        IValidator<ForgotPasswordCommand> validator,
+        IGetUserByEmailQueryHandler getUserByEmailQueryHandler)
     {
-        _context = context;
         _configuration = configuration;
         _authService = authService;
         _authEmailSender = authEmailSender;
-        _userRepository = userRepository;
+        _validator = validator;
+        _getUserByEmailQueryHandler = getUserByEmailQueryHandler;
     }
 
     public async Task HandleAsync(ForgotPasswordCommand command, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
+        var validated = await _validator.ValidateAsync(command, cancellationToken);
+        if (!validated.IsValid)
+            throw new ValidationException(validated.Errors);
+
+        var user = await _getUserByEmailQueryHandler.HandleAsync(new GetUserByEmailQuery { Email = command.Email }, cancellationToken);
 
         if (user is null)
-            throw new ApplicationException("User account not found.");
+            throw new ApplicationException("Error getting user.");
         
         var userDto = new UserDto
         {

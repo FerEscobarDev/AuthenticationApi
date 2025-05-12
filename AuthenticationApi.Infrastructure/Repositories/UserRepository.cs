@@ -43,9 +43,9 @@ public class UserRepository : IUserRepository
             user.UserName.ToLower() == emailOrUsername.ToLower(), cancellationToken);
     }
     
-    public async Task<bool> IsEmailConfirmedAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<bool> IsEmailConfirmedAsync(string emailOrUsername, CancellationToken cancellationToken = default)
     {
         return await _context.Users
-            .AnyAsync(user => user.Email == email && user.EmailConfirmed, cancellationToken);
+            .AnyAsync(user => (user.Email == emailOrUsername || user.UserName == emailOrUsername) && user.EmailConfirmed, cancellationToken);
     }
 }

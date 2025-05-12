@@ -40,9 +40,6 @@ namespace AuthenticationApi.Infrastructure.Services
             if (user is null || !_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, command.Password).Equals(PasswordVerificationResult.Success))
                 throw new ApplicationException("Invalid email or password.");
 
-            if (!user.EmailConfirmed)
-                throw new ApplicationException("You must confirm your email before logging in.");
-
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
 
