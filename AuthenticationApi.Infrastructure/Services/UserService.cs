@@ -41,6 +41,8 @@ namespace AuthenticationApi.Infrastructure.Services
             return new UserDto
             {
                 Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 UserName = user.UserName,
                 Email = user.Email
             };
