@@ -16,27 +16,28 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AuthenticationApi.Application.Commands.ResetPassword;
+using AuthenticationApi.Application.Interfaces.Repository;
 
 namespace AuthenticationApi.Infrastructure.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokensRepository _refreshTokensRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
         
-
-        public AuthService(ApplicationDbContext context, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
+        public AuthService(IUserRepository userRepository, IRefreshTokensRepository refreshTokensRepository, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
         {
-            _context = context;
+            _userRepository = userRepository;
+            _refreshTokensRepository = refreshTokensRepository;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
         }
 
-        public async Task<AuthResultDto> LoginAsync(LoginUserCommand command)
+        public async Task<AuthResultDto> LoginAsync(LoginUserCommand command, CancellationToken cancellationToken = default)
         {
-            var user = await _context.Users.Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == command.EmailOrUsername.ToLower());
+            var user = await _userRepository.GetByEmailOrUsernameAsync(command.EmailOrUsername, cancellationToken);
 
             if (user is null || !_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, command.Password).Equals(PasswordVerificationResult.Success))
                 throw new ApplicationException("Invalid email or password.");
@@ -54,9 +55,8 @@ namespace AuthenticationApi.Infrastructure.Services
                 UserId = user.Id 
             };
 
-            _context.RefreshTokens.Add(newRefreshToken);
-
-            await _context.SaveChangesAsync();
+            await _refreshTokensRepository.AddAsync(newRefreshToken, cancellationToken);
+            await _refreshTokensRepository.SaveChangesAsync(cancellationToken);
 
             return new AuthResultDto
             {
@@ -66,15 +66,11 @@ namespace AuthenticationApi.Infrastructure.Services
             };
         }
 
-        public async Task<AuthResultDto> RefreshTokenAsync(RefreshTokenCommand command)
+        public async Task<AuthResultDto> RefreshTokenAsync(RefreshTokenCommand command, CancellationToken cancellationToken = default)
         {
             var refreshTokenHash = Hash(command.RefreshToken);
 
-            var storedToken = await _context.RefreshTokens
-                .Include(rt => rt.User)
-                .Where(rt => rt.TokenHash == refreshTokenHash && !rt.Revoked)
-                .OrderByDescending(rt => rt.CreatedAt)
-                .FirstOrDefaultAsync();
+            var storedToken = await _refreshTokensRepository.GetValidTokenWithUserAsync(refreshTokenHash, cancellationToken);
 
             if (storedToken is null)
                 throw new ApplicationException("Invalid refresh token.");
@@ -98,8 +94,8 @@ namespace AuthenticationApi.Infrastructure.Services
                 UserId = user.Id
             };
 
-            _context.RefreshTokens.Add(newStored);
-            await _context.SaveChangesAsync();
+            await _refreshTokensRepository.AddAsync(newStored, cancellationToken);
+            await _refreshTokensRepository.SaveChangesAsync(cancellationToken);
 
             return new AuthResultDto
             {
@@ -109,22 +105,21 @@ namespace AuthenticationApi.Infrastructure.Services
             };
         }
 
-        public async Task RevokeRefreshTokenAsync(LogoutCommand command)
+        public async Task RevokeRefreshTokenAsync(LogoutCommand command, CancellationToken cancellationToken)
         {
             var refreshTokenHash = Hash(command.RefreshToken);
 
-            var storedToken = await _context.RefreshTokens
-                .FirstOrDefaultAsync(rt => rt.TokenHash == refreshTokenHash && !rt.Revoked);
+            var storedToken = await _refreshTokensRepository.GetValidByHashAsync(refreshTokenHash, cancellationToken);
 
             if (storedToken is null)
                 throw new ApplicationException("Refresh token is invalid or already revoked.");
 
             storedToken.Revoked = true;
 
-            await _context.SaveChangesAsync();
+            await _refreshTokensRepository.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task ConfirmEmailAsync(ConfirmEmailCommand command)
+        public async Task ConfirmEmailAsync(ConfirmEmailCommand command, CancellationToken cancellationToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
@@ -146,7 +141,7 @@ namespace AuthenticationApi.Infrastructure.Services
                 if (string.IsNullOrWhiteSpace(userId))
                     throw new ApplicationException("Invalid token.");
 
-                var user = await _context.Users.FindAsync(Guid.Parse(userId));
+                var user = await _userRepository.GetByIdAsync(Guid.Parse(userId), cancellationToken);
                 if (user is null)
                     throw new ApplicationException("User not found.");
 
@@ -154,7 +149,7 @@ namespace AuthenticationApi.Infrastructure.Services
                     return; 
 
                 user.EmailConfirmed = true;
-                await _context.SaveChangesAsync();
+                await _userRepository.SaveChangesAsync(cancellationToken);
             }
             catch (SecurityTokenException)
             {
@@ -204,7 +199,7 @@ namespace AuthenticationApi.Infrastructure.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         
-        public async Task ResetPasswordAsync(ResetPasswordCommand command)
+        public async Task ResetPasswordAsync(ResetPasswordCommand command, CancellationToken cancellationToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
@@ -226,12 +221,12 @@ namespace AuthenticationApi.Infrastructure.Services
                 if (userId is null)
                     throw new ApplicationException("Invalid token.");
 
-                var user = await _context.Users.FindAsync(Guid.Parse(userId));
+                var user = await _userRepository.GetByIdAsync(Guid.Parse(userId), cancellationToken);
                 if (user is null)
                     throw new ApplicationException("User not found.");
 
                 user.PasswordHash = _passwordHasher.HashPassword(user, command.NewPassword);
-                await _context.SaveChangesAsync();
+                await _userRepository.SaveChangesAsync(cancellationToken);
             }
             catch (SecurityTokenException)
             {
@@ -245,9 +240,6 @@ namespace AuthenticationApi.Infrastructure.Services
             var issuer = _configuration["JwtSettings:Issuer"];
             var audience = _configuration["JwtSettings:Audience"];
             var expiration = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:AccessTokenExpirationMinutes"] ?? "30"));
-            
-            
-            var _ = DateTime.Now.AddMinutes(int.Parse(_configuration["JwtSettings:ResetPasswordTokenExpirationMinutes"] ?? "10"));
 
             var claims = new List<Claim>
         {

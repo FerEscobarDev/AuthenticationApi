@@ -21,7 +21,7 @@ namespace AuthenticationApi.Application.Commands.RefreshToken
             if (!validated.IsValid)
                 throw new ValidationException(validated.Errors);
             
-            return await _authService.RefreshTokenAsync(command);
+            return await _authService.RefreshTokenAsync(command, cancellationToken);
         }
     }
 }

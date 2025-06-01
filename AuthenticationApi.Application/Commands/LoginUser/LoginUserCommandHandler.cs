@@ -21,7 +21,7 @@ namespace AuthenticationApi.Application.Commands.LoginUser
             if (!validated.IsValid)
                 throw new ValidationException(validated.Errors);
             
-            return await _authService.LoginAsync(command);
+            return await _authService.LoginAsync(command, cancellationToken);
         }
     }
 }

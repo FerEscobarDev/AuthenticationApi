@@ -5,18 +5,19 @@ using Microsoft.AspNetCore.Identity;
 using AuthenticationApi.Application.Commands.RegisterUser;
 using Microsoft.EntityFrameworkCore;
 using AuthenticationApi.Application.Interfaces;
+using AuthenticationApi.Application.Interfaces.Repository;
 using AuthenticationApi.Application.Interfaces.Services;
 
 namespace AuthenticationApi.Infrastructure.Services
 {
     public class UserService : IUserService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(ApplicationDbContext context, IPasswordHasher<User> passwordHasher)
+        public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher)
         {
-            _context = context;
+            _userRepository = userRepository;
             _passwordHasher = passwordHasher;
         }
 
@@ -35,8 +36,8 @@ namespace AuthenticationApi.Infrastructure.Services
 
             user.PasswordHash = _passwordHasher.HashPassword(user, command.Password);
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync();
 
             return new UserDto
             {

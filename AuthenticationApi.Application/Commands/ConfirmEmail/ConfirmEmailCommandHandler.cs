@@ -20,7 +20,7 @@ namespace AuthenticationApi.Application.Commands.ConfirmEmail
             if (!validated.IsValid)
                 throw new ValidationException(validated.Errors);
             
-            await _authService.ConfirmEmailAsync(command);
+            await _authService.ConfirmEmailAsync(command, cancellationToken);
         }
     }
 }

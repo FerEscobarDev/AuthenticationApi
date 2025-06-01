@@ -10,13 +10,13 @@ namespace AuthenticationApi.Application.Interfaces.Services
 {
     public interface IAuthService
     {
-        Task<AuthResultDto> LoginAsync(LoginUserCommand command);
-        Task<AuthResultDto> RefreshTokenAsync(RefreshTokenCommand command);
-        Task RevokeRefreshTokenAsync(LogoutCommand command);
-        Task ConfirmEmailAsync(ConfirmEmailCommand command);
+        Task<AuthResultDto> LoginAsync(LoginUserCommand command, CancellationToken cancellationToken);
+        Task<AuthResultDto> RefreshTokenAsync(RefreshTokenCommand command, CancellationToken cancellationToken);
+        Task RevokeRefreshTokenAsync(LogoutCommand command, CancellationToken cancellationToken);
+        Task ConfirmEmailAsync(ConfirmEmailCommand command, CancellationToken cancellationToken);
         string GenerateEmailConfirmationToken(UserDto user);
         string GeneratePasswordResetToken(UserDto userDto);
-        Task ResetPasswordAsync(ResetPasswordCommand command);
+        Task ResetPasswordAsync(ResetPasswordCommand command, CancellationToken cancellationToken);
 
     }
 }

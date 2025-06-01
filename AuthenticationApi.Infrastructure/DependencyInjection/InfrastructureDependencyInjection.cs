@@ -28,6 +28,7 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokensRepository, RefreshTokensRepository>();
 
         return services;
     }

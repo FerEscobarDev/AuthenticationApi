@@ -48,4 +48,9 @@ public class UserRepository : IUserRepository
         return await _context.Users
             .AnyAsync(user => (user.Email == emailOrUsername || user.UserName == emailOrUsername) && user.EmailConfirmed, cancellationToken);
     }
+    
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

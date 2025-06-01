@@ -20,6 +20,6 @@ public class ResetPasswordCommandHandler
         if (!validated.IsValid)
             throw new ValidationException(validated.Errors);
         
-        await _authService.ResetPasswordAsync(command);
+        await _authService.ResetPasswordAsync(command, cancellationToken);
     }
 }

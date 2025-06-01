@@ -21,7 +21,7 @@ namespace AuthenticationApi.Application.Commands.Logout
             if (!validated.IsValid)
                 throw new ValidationException(validated.Errors);
             
-            await _authService.RevokeRefreshTokenAsync(command);
+            await _authService.RevokeRefreshTokenAsync(command, cancellationToken);
         }
     }
 }
