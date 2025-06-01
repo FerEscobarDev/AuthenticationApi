@@ -30,6 +30,6 @@ public class ResendConfirmationEmailValidator : AbstractValidator<ResendConfirma
     
     private async Task<bool> EmailIsConfirmed(string email, CancellationToken cancellationToken)
     {
-        return await _checkEmailConfirmedQueryHandler.HandleAsync(new CheckEmailConfirmedQuery { EmailOrUsername = email }, cancellationToken);
+        return !await _checkEmailConfirmedQueryHandler.HandleAsync(new CheckEmailConfirmedQuery { EmailOrUsername = email }, cancellationToken);
     }
 }
