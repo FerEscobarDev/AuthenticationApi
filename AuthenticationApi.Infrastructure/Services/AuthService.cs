@@ -24,6 +24,7 @@ namespace AuthenticationApi.Infrastructure.Services
         private readonly ApplicationDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
+        
 
         public AuthService(ApplicationDbContext context, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
         {
@@ -244,6 +245,9 @@ namespace AuthenticationApi.Infrastructure.Services
             var issuer = _configuration["JwtSettings:Issuer"];
             var audience = _configuration["JwtSettings:Audience"];
             var expiration = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:AccessTokenExpirationMinutes"] ?? "30"));
+            
+            
+            var _ = DateTime.Now.AddMinutes(int.Parse(_configuration["JwtSettings:ResetPasswordTokenExpirationMinutes"] ?? "10"));
 
             var claims = new List<Claim>
         {

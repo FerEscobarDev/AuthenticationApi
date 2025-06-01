@@ -24,6 +24,8 @@ namespace AuthenticationApi.Infrastructure.Services
         {
             var user = new User
             {
+                FirstName = command.FirstName,
+                LastName = command.LastName,
                 UserName = command.UserName,
                 Email = command.Email,
                 EmailConfirmed = false,

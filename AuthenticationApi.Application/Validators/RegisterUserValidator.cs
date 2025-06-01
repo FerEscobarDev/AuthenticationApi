@@ -18,8 +18,13 @@ public class RegisterUserValidator : AbstractValidator<RegisterUserCommand>
         
         RuleFor(registerUserCommand => registerUserCommand.FirstName)
             .NotEmpty().WithMessage("First name is required.")
-            .Length(3, 250).WithMessage("Username must be between 3 and 250 characters.")
+            .Length(3, 250).WithMessage("First must be between 3 and 250 characters.")
             .Matches(@"^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$").WithMessage("First name can only contain letters.");
+        
+        RuleFor(registerUserCommand => registerUserCommand.LastName)
+            .NotEmpty().WithMessage("LastName name is required.")
+            .Length(3, 250).WithMessage("LastName must be between 3 and 250 characters.")
+            .Matches(@"^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$").WithMessage("LastName name can only contain letters.");
 
         RuleFor(registerUserCommand => registerUserCommand.Email)
             .NotEmpty().WithMessage("Email is required.")

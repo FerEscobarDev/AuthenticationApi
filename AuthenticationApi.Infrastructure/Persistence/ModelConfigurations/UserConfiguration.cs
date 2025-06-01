@@ -12,6 +12,11 @@ namespace AuthenticationApi.Infrastructure.Persistence.ModelConfigurations
 
             builder.HasKey(u => u.Id);
             builder.HasIndex(u => u.Email).IsUnique();
+            builder.HasIndex(u => u.UserName).IsUnique();
+            
+            builder.Property(u => u.FirstName)
+                .IsRequired()
+                .HasMaxLength(250);
 
             builder.Property(u => u.UserName)
                 .IsRequired()
@@ -19,7 +24,7 @@ namespace AuthenticationApi.Infrastructure.Persistence.ModelConfigurations
 
             builder.Property(u => u.Email)
                 .IsRequired()
-                .HasMaxLength(150);
+                .HasMaxLength(250);
 
             builder.Property(u => u.PasswordHash)
                 .IsRequired();
