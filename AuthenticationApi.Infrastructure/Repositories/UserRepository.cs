@@ -48,7 +48,31 @@ public class UserRepository : IUserRepository
         return await _context.Users
             .AnyAsync(user => (user.Email == emailOrUsername || user.UserName == emailOrUsername) && user.EmailConfirmed, cancellationToken);
     }
-    
+
+    public async Task UpdateAsync(User user, CancellationToken cancellationToken)
+    {
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task EnableTwoFactorAsync(User user, string secretKey, string[] recoveryCodes, CancellationToken cancellationToken = default)
+    {
+        user.TwoFactorEnabled = true;
+        user.TwoFactorSecretKey = secretKey;
+        user.TwoFactorRecoveryCodes = string.Join(",", recoveryCodes);
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DisableTwoFactorAsync(User user, CancellationToken cancellationToken = default)
+    {
+        user.TwoFactorEnabled = false;
+        user.TwoFactorSecretKey = null;
+        user.TwoFactorRecoveryCodes = null;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         await _context.SaveChangesAsync(cancellationToken);

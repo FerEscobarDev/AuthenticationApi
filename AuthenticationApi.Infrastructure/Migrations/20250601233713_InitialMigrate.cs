@@ -23,6 +23,9 @@ namespace AuthenticationApi.Infrastructure.Migrations
                     password_hash = table.Column<string>(type: "text", nullable: false),
                     email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    two_factor_secret_key = table.Column<string>(type: "text", nullable: true),
+                    two_factor_recovery_codes = table.Column<string>(type: "text", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

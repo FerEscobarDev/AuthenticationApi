@@ -17,6 +17,5 @@ namespace AuthenticationApi.Application.Interfaces.Services
         string GenerateEmailConfirmationToken(UserDto user);
         string GeneratePasswordResetToken(UserDto userDto);
         Task ResetPasswordAsync(ResetPasswordCommand command, CancellationToken cancellationToken);
-
     }
 }

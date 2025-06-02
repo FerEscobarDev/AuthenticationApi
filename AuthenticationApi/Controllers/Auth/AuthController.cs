@@ -2,12 +2,15 @@
 using AuthenticationApi.Application.Commands.ForgotPassword;
 using AuthenticationApi.Application.Commands.LoginUser;
 using AuthenticationApi.Application.Commands.Logout;
+using AuthenticationApi.Application.Commands.ManageTwoFactor;
 using AuthenticationApi.Application.Commands.RefreshToken;
 using AuthenticationApi.Application.Commands.RegisterUser;
 using AuthenticationApi.Application.Commands.ResetPassword;
+using AuthenticationApi.Common.Extensions;
 using AuthenticationApi.Application.DTOs;
 using AuthenticationApi.Application.DTOs.Auth;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationApi.Controllers.Auth
@@ -24,6 +27,11 @@ namespace AuthenticationApi.Controllers.Auth
         private readonly ResendConfirmationEmailCommandHandler _resendConfirmationEmailHandler;
         private readonly ForgotPasswordCommandHandler _forgotPasswordHandler;
         private readonly ResetPasswordCommandHandler _resetPasswordHandler;
+        private readonly GenerateTwoFactorQrCodeCommandHandler _generateTwoFactorQrCodeHandler;
+        private readonly Enable2FaCommandHandler _enable2FaHandler;
+        private readonly Disable2FaCommandHandler _disable2FaHandler;
+        private readonly RegenerateRecoveryCodesCommandHandler _regenerateRecoveryCodesHandler;
+        private readonly GetRecoveryCodesCommandHandler _getRecoveryCodesHandler;
 
         public AuthController(
             RegisterUserCommandHandler registerHandler, 
@@ -33,7 +41,12 @@ namespace AuthenticationApi.Controllers.Auth
             ConfirmEmailCommandHandler confirmEmailHandler,
             ResendConfirmationEmailCommandHandler resendConfirmationEmailHandler,
             ForgotPasswordCommandHandler forgotPasswordHandler,
-            ResetPasswordCommandHandler resetPasswordHandler)
+            ResetPasswordCommandHandler resetPasswordHandler,
+            GenerateTwoFactorQrCodeCommandHandler generateTwoFactorQrCodeHandler,
+            Enable2FaCommandHandler enable2FaHandler,
+            Disable2FaCommandHandler disable2FaHandler,
+            RegenerateRecoveryCodesCommandHandler regenerateRecoveryCodesHandler,
+            GetRecoveryCodesCommandHandler getRecoveryCodesHandler)
         {
             _registerHandler = registerHandler;
             _loginHandler = loginHandler;
@@ -43,6 +56,11 @@ namespace AuthenticationApi.Controllers.Auth
             _resendConfirmationEmailHandler = resendConfirmationEmailHandler;
             _forgotPasswordHandler = forgotPasswordHandler;
             _resetPasswordHandler = resetPasswordHandler;
+            _generateTwoFactorQrCodeHandler = generateTwoFactorQrCodeHandler;
+            _enable2FaHandler = enable2FaHandler;
+            _disable2FaHandler = disable2FaHandler;
+            _regenerateRecoveryCodesHandler = regenerateRecoveryCodesHandler;
+            _getRecoveryCodesHandler = getRecoveryCodesHandler;
         }
 
         [HttpPost("register")]
@@ -206,6 +224,79 @@ namespace AuthenticationApi.Controllers.Auth
                 {
                     errors = ex.Errors.Select(e => e.ErrorMessage)
                 });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        
+        [HttpPost("2fa/setup")]
+        [Authorize]
+        public async Task<IActionResult> SetupTwoFactor([FromServices] GenerateTwoFactorQrCodeCommandHandler handler, CancellationToken cancellationToken)
+        {
+            var userId = User.GetUserId(); 
+            var response = await _generateTwoFactorQrCodeHandler.HandleAsync(new GenerateTwoFactorQrCodeCommand { UserId = userId });
+            return Ok(response);
+        }
+        
+        [Authorize]
+        [HttpPost("manage/2fa/enable")]
+        public async Task<IActionResult> Enable2Fa([FromBody] Enable2FaCommand command)
+        {
+            try
+            {
+                command.UserId = User.GetUserId().ToString(); 
+                await _enable2FaHandler.HandleAsync(command);
+                return Ok(new { message = "Two-factor authentication enabled." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        
+        [Authorize]
+        [HttpPost("manage/2fa/disable")]
+        public async Task<IActionResult> Disable2Fa([FromBody] Disable2FaCommand command)
+        {
+            try
+            {
+                var userId = User.GetUserId();
+                await _disable2FaHandler.HandleAsync(userId, command);
+                return Ok(new { message = "Two-factor authentication disabled." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        
+        [Authorize]
+        [HttpPost("manage/2fa/recovery-codes")]
+        public async Task<IActionResult> RegenerateRecoveryCodes()
+        {
+            try
+            {
+                var userId = User.GetUserId();
+                var codes = await _regenerateRecoveryCodesHandler.HandleAsync(userId);
+                return Ok(codes);
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("manage/2fa/recovery-codes")]
+        public async Task<IActionResult> GetRecoveryCodes()
+        {
+            try
+            {
+                var userId = User.GetUserId();
+                var codes = await _getRecoveryCodesHandler.HandleAsync(userId);
+                return Ok(codes);
             }
             catch (ApplicationException ex)
             {

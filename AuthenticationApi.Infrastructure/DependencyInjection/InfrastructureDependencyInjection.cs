@@ -27,6 +27,7 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IAuthEmailSender, AuthEmailSender>(); 
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITwoFactorService, TwoFactorService>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokensRepository, RefreshTokensRepository>();
 

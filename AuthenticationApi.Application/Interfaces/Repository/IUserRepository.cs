@@ -10,5 +10,8 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken cancellationToken = default);
     Task<bool> ExistsByEmailOrUsernameAsync(string emailOrUsername, CancellationToken cancellationToken = default);
     Task<bool> IsEmailConfirmedAsync(string emailOrUsername, CancellationToken cancellationToken = default);
+    Task UpdateAsync(User user, CancellationToken cancellationToken = default);
+    Task EnableTwoFactorAsync(User user, string secretKey, string[] recoveryCodes, CancellationToken cancellationToken = default);
+    Task DisableTwoFactorAsync(User user, CancellationToken cancellationToken = default);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);   
 }

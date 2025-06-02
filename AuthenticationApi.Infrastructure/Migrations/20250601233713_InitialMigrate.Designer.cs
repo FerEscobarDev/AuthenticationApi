@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuthenticationApi.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250518013214_InitialMigrate")]
+    [Migration("20250601233713_InitialMigrate")]
     partial class InitialMigrate
     {
         /// <inheritdoc />
@@ -102,6 +102,18 @@ namespace AuthenticationApi.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("two_factor_enabled");
+
+                    b.Property<string>("TwoFactorRecoveryCodes")
+                        .HasColumnType("text")
+                        .HasColumnName("two_factor_recovery_codes");
+
+                    b.Property<string>("TwoFactorSecretKey")
+                        .HasColumnType("text")
+                        .HasColumnName("two_factor_secret_key");
 
                     b.Property<string>("UserName")
                         .IsRequired()

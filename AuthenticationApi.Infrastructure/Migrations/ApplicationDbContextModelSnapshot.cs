@@ -100,6 +100,18 @@ namespace AuthenticationApi.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
 
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("two_factor_enabled");
+
+                    b.Property<string>("TwoFactorRecoveryCodes")
+                        .HasColumnType("text")
+                        .HasColumnName("two_factor_recovery_codes");
+
+                    b.Property<string>("TwoFactorSecretKey")
+                        .HasColumnType("text")
+                        .HasColumnName("two_factor_secret_key");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(100)

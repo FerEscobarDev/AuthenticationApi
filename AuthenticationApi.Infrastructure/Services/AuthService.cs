@@ -17,6 +17,7 @@ using System.Security.Cryptography;
 using System.Text;
 using AuthenticationApi.Application.Commands.ResetPassword;
 using AuthenticationApi.Application.Interfaces.Repository;
+using OtpNet;
 
 namespace AuthenticationApi.Infrastructure.Services
 {
@@ -41,6 +42,46 @@ namespace AuthenticationApi.Infrastructure.Services
 
             if (user is null || !_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, command.Password).Equals(PasswordVerificationResult.Success))
                 throw new ApplicationException("Invalid email or password.");
+            
+            if (user.TwoFactorEnabled)
+            {
+                if (string.IsNullOrWhiteSpace(command.TwoFactorCode) && string.IsNullOrWhiteSpace(command.RecoveryCode))
+                    throw new ApplicationException("Two-factor authentication is required.");
+
+                var valid2Fa = false;
+
+                if (!string.IsNullOrWhiteSpace(command.TwoFactorCode))
+                {
+                    var totp = new Totp(Base32Encoding.ToBytes(user.TwoFactorSecretKey!));
+                    valid2Fa = totp.VerifyTotp(command.TwoFactorCode.Trim(), out _, new VerificationWindow(2, 2));
+                }
+
+                if (!valid2Fa && !string.IsNullOrWhiteSpace(command.RecoveryCode))
+                {
+                    var rawCodes = user.TwoFactorRecoveryCodes ?? "[]";
+
+                    var recoveryCodes = rawCodes
+                        .Trim('[', ']')
+                        .Replace("\"", "")
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(c => c.Trim())
+                        .ToList();
+
+                    if (recoveryCodes.Contains(command.RecoveryCode.Trim()))
+                    {
+                        valid2Fa = true;
+
+                        recoveryCodes.Remove(command.RecoveryCode.Trim());
+                        user.TwoFactorRecoveryCodes = $"[{string.Join(",", recoveryCodes.Select(code => $"\"{code}\""))}]";
+
+                        await _userRepository.SaveChangesAsync(cancellationToken);
+                    }
+                }
+
+
+                if (!valid2Fa)
+                    throw new ApplicationException("Invalid two-factor authentication code.");
+            }
 
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
